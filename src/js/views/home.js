@@ -5,6 +5,8 @@ const Home = () => {
   const [contacts, setContacts] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [contactToEdit, setContactToEdit] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState(null);
 
   useEffect(() => {
     fetch("https://assets.breatheco.de/apis/fake/contact/agenda/fluxfeint-agenda")
@@ -12,7 +14,7 @@ const Home = () => {
       .then((data) => setContacts(data))
       .catch((error) => console.error(error));
   }, []);
-  
+
   const fetchContacts = () => {
     fetch("https://assets.breatheco.de/apis/fake/contact/agenda/fluxfeint-agenda")
       .then((response) => response.json())
@@ -25,16 +27,28 @@ const Home = () => {
   }, []);
 
   const handleDelete = (id) => {
-    fetch(`https://assets.breatheco.de/apis/fake/contact/${id}`, {
+    setContactToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    fetch(`https://assets.breatheco.de/apis/fake/contact/${contactToDelete}`, {
       method: "DELETE",
     })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Error deleting contact");
         }
-        setContacts(contacts.filter((contact) => contact.id !== id));
+        setContacts(contacts.filter((contact) => contact.id !== contactToDelete));
       })
       .catch((error) => console.error(error));
+    setShowDeleteModal(false);
+    setContactToDelete(null);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setContactToDelete(null);
   };
 
   const handleEdit = (contact) => {
@@ -103,7 +117,41 @@ const Home = () => {
                 ></button>
               </div>
               <div className="modal-body">
-              <AddContact idContact={contactToEdit} onActionComplete={fetchContacts} />
+                <AddContact idContact={contactToEdit} onActionComplete={fetchContacts} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {showDeleteModal && (
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          onClick={cancelDelete}
+        >
+          <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Delete Contact</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                  onClick={cancelDelete}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>Are you sure you want to delete the contact?</p>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-danger" onClick={confirmDelete}>
+                  Yes
+                </button>
+                <button type="button" className="btn btn-secondary" onClick={cancelDelete}>
+                  No
+                </button>
               </div>
             </div>
           </div>
