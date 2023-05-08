@@ -150,7 +150,7 @@ const Home = () => {
                   Yes
                 </button>
                 <button type="button" className="btn btn-secondary" onClick={cancelDelete}>
-                  No
+                  Cancel
                 </button>
               </div>
             </div>
